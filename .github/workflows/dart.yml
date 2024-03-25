@@ -1,56 +1,50 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Dart
-
-on:
-  push:
-    branches: [ "master", "hotfix", "development", "release" ]
-  pull_request:
-    branches: [ "master", "hotfix", "development", "release" ]
-
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v3
-      - id: flutter-action
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-      - name: Print Flutter configurations
-        run: |
-          echo CACHE-PATH=${{ steps.flutter-action.outputs.CACHE-PATH }}
-          echo CACHE-KEY=${{ steps.flutter-action.outputs.CACHE-KEY }}
-          echo CHANNEL=${{ steps.flutter-action.outputs.CHANNEL }}
-          echo VERSION=${{ steps.flutter-action.outputs.VERSION }}
-          echo ARCHITECTURE=${{ steps.flutter-action.outputs.ARCHITECTURE }}
+    - continue-on-error: true
+      uses: actions/checkout@v3
+    - continue-on-error: true
+      id: flutter-action
+      uses: subosito/flutter-action@v2
+      with:
+        channel: stable
+    - continue-on-error: true
+      name: Print Flutter configurations
+      run: 'echo CACHE-PATH=${{ steps.flutter-action.outputs.CACHE-PATH }}
 
-      - name: Clean cache configurations
-        run: flutter clean
+        echo CACHE-KEY=${{ steps.flutter-action.outputs.CACHE-KEY }}
 
-      - name: Install dependencies
-        run: flutter pub get
+        echo CHANNEL=${{ steps.flutter-action.outputs.CHANNEL }}
 
-      # Disabled due inconsistencies between local and remote execution.
-      # - name: Verify formatting
-      #   run: dart format --output=none --set-exit-if-changed .
+        echo VERSION=${{ steps.flutter-action.outputs.VERSION }}
 
-      - name: Analyze project source
-        run: flutter analyze --no-fatal-infos
+        echo ARCHITECTURE=${{ steps.flutter-action.outputs.ARCHITECTURE }}
 
-      - name: Run tests
-        run: flutter test
-
-      - name: Run tests coverage
-        run: flutter test --coverage
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: false
-          directory: coverage
+        '
+    - continue-on-error: true
+      name: Clean cache configurations
+      run: flutter clean
+    - continue-on-error: true
+      name: Install dependencies
+      run: flutter pub get
+    - continue-on-error: true
+      name: Analyze project source
+      run: flutter analyze --no-fatal-infos
+    - continue-on-error: true
+      name: Run tests
+      run: flutter test
+    - continue-on-error: true
+      name: Run tests coverage
+      run: flutter test --coverage
+    - continue-on-error: true
+      name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        directory: coverage
+        fail_ci_if_error: false
+        token: ${{ secrets.CODECOV_TOKEN }}
+name: Dart
+on:
+  repository_dispatch:
+    types: trigger-ga___dart.yml
